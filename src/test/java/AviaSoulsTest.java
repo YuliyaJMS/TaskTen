@@ -16,14 +16,18 @@ class AviaSoulsTest {
     @Test
     void testSearchSortedByPrice() {
         AviaSouls manager = new AviaSouls();
-        manager.add(new Ticket("LED", "MOW", 8000, 600, 800));
-        manager.add(new Ticket("LED", "MOW", 5000, 500, 700));
-        manager.add(new Ticket("LED", "MOW", 6000, 550, 750));
+        manager.add(new Ticket("LED", "MOW", 8000, 600, 900)); // 300 мин
+        manager.add(new Ticket("LED", "MOW", 5000, 500, 700)); // 200 мин
+        manager.add(new Ticket("LED", "MOW", 6000, 550, 800)); // 250 мин
 
-        Ticket[] result = manager.search("LED", "MOW");
-        assertEquals(5000, result[0].getPrice());
-        assertEquals(6000, result[1].getPrice());
-        assertEquals(8000, result[2].getPrice());
+        Ticket[] expected = {
+                new Ticket("LED", "MOW", 5000, 500, 700),
+                new Ticket("LED", "MOW", 6000, 550, 800),
+                new Ticket("LED", "MOW", 8000, 600, 900)
+        };
+
+        Ticket[] actual = manager.search("LED", "MOW");
+        assertArrayEquals(expected, actual);
     }
 
     @Test
@@ -34,6 +38,7 @@ class AviaSoulsTest {
         TicketTimeComparator comp = new TicketTimeComparator();
         assertTrue(comp.compare(t1, t2) < 0);
         assertTrue(comp.compare(t2, t1) > 0);
+        assertEquals(0, comp.compare(t1, new Ticket("A", "B", 6000, 600, 800))); // same duration
     }
 
     @Test
@@ -43,9 +48,13 @@ class AviaSoulsTest {
         manager.add(new Ticket("LED", "MOW", 5000, 500, 700)); // 200 мин
         manager.add(new Ticket("LED", "MOW", 6000, 550, 800)); // 250 мин
 
-        Ticket[] result = manager.searchAndSortBy("LED", "MOW", new TicketTimeComparator());
-        assertEquals(200, result[0].getTimeTo() - result[0].getTimeFrom());
-        assertEquals(250, result[1].getTimeTo() - result[1].getTimeFrom());
-        assertEquals(300, result[2].getTimeTo() - result[2].getTimeFrom());
+        Ticket[] expected = {
+                new Ticket("LED", "MOW", 5000, 500, 700), // 200 мин
+                new Ticket("LED", "MOW", 6000, 550, 800), // 250 мин
+                new Ticket("LED", "MOW", 8000, 600, 900)  // 300 мин
+        };
+
+        Ticket[] actual = manager.searchAndSortBy("LED", "MOW", new TicketTimeComparator());
+        assertArrayEquals(expected, actual);
     }
 }
